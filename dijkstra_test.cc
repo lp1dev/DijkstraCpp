@@ -68,7 +68,6 @@ int main() {
     targets.push_back(6);
 
     dijkstra.RunUntilAllTargetsAreReached(9, targets);
-    exit(0);
 
     CHECK_EQ(dijkstra.GetGraph().NumArcs(), 20);
     CHECK_EQ(dijkstra.ReachedNodes().size(), 10);

@@ -29,12 +29,13 @@ private:
     const vector<double>* arc_lengths;
     vector<double> distances;
     vector<int> parentarcs;
- public:
+    vector<int> resolvedTargets;
+public:
   // The given graph and arc lengths won't be copied, and must remain live for
   // the lifetime of this class.
   Dijkstra(const Graph* graph, const vector<double>* arc_lengths);
 
-    void RunForTarget(int, int, int, int);
+    void RunForTarget(int, int, int, int, int);
     double GetDistance(int, int) const;
 
   const Graph& GetGraph() const;
