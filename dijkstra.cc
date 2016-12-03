@@ -36,17 +36,17 @@ void Dijkstra::RunForTarget(int seeked_source, int seeked_target, int source, in
             OUTPUT << "/////\n\tFrom: (" << source << ") to (" << target << ") totalDistance :" << totalDistance
                    << std::endl;
         }
-        //Retrieving outgoing arcs from source
+        //Retrieving all arcs coming from the source
         vector<int> arcsComingFrom = graph->ArcsComingFrom(source);
         for (const int arc: arcsComingFrom) {
             target = graph->targets[arc];
             double distance = this->arc_lengths->at(arc);
-            //If the distance we computed is longer, we stop here
+            //If the distance of this arc is longer than the distance with target we have, we stop here
             if (distance >= distances[target]) {
                 if (DEBUG){
-                    OUTPUT << "Distance " << distance << " found is bigger than " << distances[source];
+                    OUTPUT << "Distance " << distance << " found is bigger than " << distances[target] << std::endl;
                 }
-                return;
+                continue;
             }
             if (DEBUG) {
                 OUTPUT << "[" << arc << "]\n";
@@ -56,14 +56,12 @@ void Dijkstra::RunForTarget(int seeked_source, int seeked_target, int source, in
             //We add the target to reachedNodes if it hasn't been reached already
             if (distances[target] == infinity)
                 reachedNodes.push_back(target);
-            if (DEBUG && distances[target] != infinity) {
+            else if  (DEBUG) {
                 OUTPUT << "! Resetting same distance distance[" << target << "]\n";
             }
-            if (source == seeked_source)
-                distances[target] = distance;
-            else
-                distances[target] = totalDistance;
-
+            if (totalDistance >= distances[target])
+                continue;
+            distances[target] = totalDistance;
             //
             if (DEBUG)
                 OUTPUT << "assert distances[" << source << "] = " << distances[target] << std::endl;
@@ -74,7 +72,7 @@ void Dijkstra::RunForTarget(int seeked_source, int seeked_target, int source, in
                 if (DEBUG) OUTPUT << GRN << "[Target " << target << " found]\n" << STD;
                 resolvedTargets[targetId] = 1;
             } else
-                RunForTarget(seeked_source, seeked_target, source, target, totalDistance, targetId);
+                RunForTarget(seeked_source, seeked_target, target, seeked_target, totalDistance, targetId);
         }
     }
 }
