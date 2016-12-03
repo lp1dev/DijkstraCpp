@@ -41,6 +41,7 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
         //Retrieving all arcs coming from the source
         vector<int> arcsComingFrom = graph->ArcsComingFrom(source);
         for (const int arc: arcsComingFrom) {
+            //To avoid getting stuck in the for
             if (resolvedTargets[targetId])
                 return;
             target = graph->targets[arc];
@@ -49,14 +50,6 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
             }
             double distance = this->arc_lengths->at(arc);
             //If the distance of this arc is longer than the distance with the target we have, we stop here
-            if (distance >= distances[target]) {
-                if (DEBUG) {
-                    OUTPUT << "Distance " << distance <<
-                           " found is bigger than " << distances[target] <<
-                           " to go to target " << target << std::endl;
-                }
-                continue;
-            }
             if (DEBUG) {
                 OUTPUT << "[" << arc << "]\n";
                 OUTPUT << "(" << source << ") -> (" << target << ") = " << distance << std::endl;
@@ -65,7 +58,7 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
             if (distances[target] == infinity)
                 reachedNodes.push_back(target);
             //If the total distance + the distance of this arc is >= the stored distance, we stop
-            if ((totalDistance + distance) >= distances[target])
+            if (distance + totalDistance >= distances[target])
                 continue;
             totalDistance += distance;
             if (DEBUG)
@@ -79,7 +72,6 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
             if (target == seeked_target) {
                 if (DEBUG) OUTPUT << GRN << "[Target " << target << " found]\n" << STD;
                 resolvedTargets[targetId] = 1;
-                return;
             } else
                 RunForTarget(seeked_target, target, seeked_target, totalDistance, targetId);
         }
