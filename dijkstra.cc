@@ -55,10 +55,7 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
             //We add the target to reachedNodes if it hasn't been reached already
             if (distances[target] == infinity)
                 reachedNodes.push_back(target);
-            else if  (DEBUG) {
-                OUTPUT << "! Resetting same distance distance[" << target << "]\n";
-            }
-            if (totalDistance >= distances[target])
+            if ((totalDistance + distance) >= distances[target])
                 continue;
             totalDistance += distance;
             distances[target] = totalDistance;
