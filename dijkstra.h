@@ -10,6 +10,7 @@
 
 using std::priority_queue;
 using std::vector;
+const double infinity = std::numeric_limits<double>::infinity();
 
 struct DijkstraState {
   int node;
@@ -30,13 +31,15 @@ private:
     vector<double> distances;
     vector<int> parentarcs;
     vector<int> resolvedTargets;
+    vector<int> reachedNodes;
 public:
   // The given graph and arc lengths won't be copied, and must remain live for
   // the lifetime of this class.
   Dijkstra(const Graph* graph, const vector<double>* arc_lengths);
 
-    void RunForTarget(int, int, int, int, int);
+    void RunForTarget(int, int, int, double, int);
     double GetDistance(int, int) const;
+    bool IsNodeReached(int);
 
   const Graph& GetGraph() const;
 
