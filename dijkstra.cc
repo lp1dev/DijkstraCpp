@@ -55,6 +55,7 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
             //We add the target to reachedNodes if it hasn't been reached already
             if (distances[target] == infinity)
                 reachedNodes.push_back(target);
+            //If the total distance + the distance of this arc is >= the stored distance, we stop
             if ((totalDistance + distance) >= distances[target])
                 continue;
             totalDistance += distance;
@@ -77,15 +78,17 @@ void Dijkstra::RunUntilAllTargetsAreReached(int source, const vector<int> &targe
     //Initialising the distance to the source to 0
     distances[source] = 0;
     reachedNodes.push_back(source);
+    vector<int> targetsToFind = targets.empty() ? graph->targets : targets;
     //
     if (DEBUG) {
         OUTPUT << "--------------------------\n";
         OUTPUT << "Distance with " << source << " = 0\n";
     }
     //Running for each target
-    for (int i = 0; i < targets.size(); i++) {
+
+    for (int i = 0; i < targetsToFind.size(); i++) {
         resolvedTargets.push_back(0);
-        RunForTarget(targets[i], source, targets[i], 0, i);
+        RunForTarget(targetsToFind[i], source, targetsToFind[i], 0, i);
     }
     //Displaying the distances in DEBUG mode
     if (DEBUG) {
