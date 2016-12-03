@@ -41,7 +41,7 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
         //Retrieving all arcs coming from the source
         vector<int> arcsComingFrom = graph->ArcsComingFrom(source);
         for (const int arc: arcsComingFrom) {
-            //To avoid getting stuck in the for
+            //To avoid getting stuck in the for loop
             if (resolvedTargets[targetId])
                 return;
             target = graph->targets[arc];
@@ -58,8 +58,12 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
             if (distances[target] == infinity)
                 reachedNodes.push_back(target);
             //If the total distance + the distance of this arc is >= the stored distance, we stop
-            if (distance + totalDistance >= distances[target])
+            if (distance + totalDistance >= distances[target]) {
+                if (DEBUG) OUTPUT << "distance found "
+                                  << distance + totalDistance <<
+                                  " is bigger than " << distances[target] << " for " << target << std::endl;
                 continue;
+            }
             totalDistance += distance;
             if (DEBUG)
                 OUTPUT << "total distance is now : " << totalDistance << std::endl;
@@ -122,5 +126,4 @@ const vector<int> &Dijkstra::ParentArcs() const {
 }
 
 vector<int> Dijkstra::ArcPathFromSourceTo(int node) const {
-
 }

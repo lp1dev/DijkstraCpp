@@ -13,11 +13,16 @@ using std::vector;
 const double infinity = std::numeric_limits<double>::infinity();
 
 struct DijkstraState {
-  int node;
-  double distance;
+    int node;
+    double distance;
 
-  // So that we can do std::priority_queue<DijkstraState>. Beware the ordering!
-  bool operator<(const DijkstraState& other) const;
+    // So that we can do std::priority_queue<DijkstraState>. Beware the ordering!
+    bool operator<(const DijkstraState& other) const {
+        // Reverse the order because of priority_queue<> pop order.
+        if (distance != other.distance) return distance > other.distance;
+        // Break ties by node id.
+        return node > other.node;
+    }
 };
 
 // This class helps to run several Dijkstra computation serially (it it NOT
@@ -32,6 +37,7 @@ private:
     vector<int> parentarcs;
     vector<int> resolvedTargets;
     vector<int> reachedNodes;
+    priority_queue<DijkstraState> queue;
 public:
   // The given graph and arc lengths won't be copied, and must remain live for
   // the lifetime of this class.
