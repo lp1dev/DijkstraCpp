@@ -9,6 +9,7 @@ Dijkstra::Dijkstra(const Graph *graph, const vector<double> *arc_lengths) : grap
     for (int i = 0; i <= arc_lengths->size(); i++) {
         parentarcs.push_back(-1);
         distances.push_back(infinity);
+        resolvedTargets.push_back(0);
     }
 }
 
@@ -31,20 +32,26 @@ bool Dijkstra::IsNodeReached(int node) {
 
 void Dijkstra::RunForTarget(int seeked_target, int source, int target, double totalDistance,
                             int targetId) {
-    if (!resolvedTargets[targetId]) {
+    if (!resolvedTargets[targetId] && source != target) {
         if (DEBUG) {
             OUTPUT << "/////\n\tFrom: (" << source << ") to (" << target << ") totalDistance :" << totalDistance
                    << std::endl;
+            OUTPUT << "(seeked_target : " << seeked_target << ")\n";
         }
         //Retrieving all arcs coming from the source
         vector<int> arcsComingFrom = graph->ArcsComingFrom(source);
         for (const int arc: arcsComingFrom) {
             target = graph->targets[arc];
+            if (DEBUG){
+                OUTPUT << "passing by target " << target << std::endl;
+            }
             double distance = this->arc_lengths->at(arc);
-            //If the distance of this arc is longer than the distance with target we have, we stop here
+            //If the distance of this arc is longer than the distance with the target we have, we stop here
             if (distance >= distances[target]) {
-                if (DEBUG){
-                    OUTPUT << "Distance " << distance << " found is bigger than " << distances[target] << std::endl;
+                if (DEBUG) {
+                    OUTPUT << "Distance " << distance <<
+                           " found is bigger than " << distances[target] <<
+                           " to go to target " << target << std::endl;
                 }
                 continue;
             }
@@ -59,6 +66,8 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
             if ((totalDistance + distance) >= distances[target])
                 continue;
             totalDistance += distance;
+            if (DEBUG)
+                OUTPUT << "total distance is now : " << totalDistance << std::endl;
             distances[target] = totalDistance;
             if (DEBUG)
                 OUTPUT << "assert distances[" << target << "] = " << distances[target] << std::endl;
@@ -68,6 +77,7 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
             if (target == seeked_target) {
                 if (DEBUG) OUTPUT << GRN << "[Target " << target << " found]\n" << STD;
                 resolvedTargets[targetId] = 1;
+                return;
             } else
                 RunForTarget(seeked_target, target, seeked_target, totalDistance, targetId);
         }
@@ -87,7 +97,7 @@ void Dijkstra::RunUntilAllTargetsAreReached(int source, const vector<int> &targe
     //Running for each target
 
     for (int i = 0; i < targetsToFind.size(); i++) {
-        resolvedTargets.push_back(0);
+        if (DEBUG) OUTPUT << "Seeking target " << targetsToFind[i] << std::endl;
         RunForTarget(targetsToFind[i], source, targetsToFind[i], 0, i);
     }
     //Displaying the distances in DEBUG mode
