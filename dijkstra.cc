@@ -29,7 +29,7 @@ bool Dijkstra::IsNodeReached(int node) {
     return false;
 }
 
-void Dijkstra::RunForTarget(int seeked_source, int seeked_target, int source, int target, double totalDistance,
+void Dijkstra::RunForTarget(int seeked_target, int source, int target, double totalDistance,
                             int targetId) {
     if (!resolvedTargets[targetId]) {
         if (DEBUG) {
@@ -52,7 +52,6 @@ void Dijkstra::RunForTarget(int seeked_source, int seeked_target, int source, in
                 OUTPUT << "[" << arc << "]\n";
                 OUTPUT << "(" << source << ") -> (" << target << ") = " << distance << std::endl;
             }
-            totalDistance += distance;
             //We add the target to reachedNodes if it hasn't been reached already
             if (distances[target] == infinity)
                 reachedNodes.push_back(target);
@@ -61,10 +60,10 @@ void Dijkstra::RunForTarget(int seeked_source, int seeked_target, int source, in
             }
             if (totalDistance >= distances[target])
                 continue;
+            totalDistance += distance;
             distances[target] = totalDistance;
-            //
             if (DEBUG)
-                OUTPUT << "assert distances[" << source << "] = " << distances[target] << std::endl;
+                OUTPUT << "assert distances[" << target << "] = " << distances[target] << std::endl;
             //We add the arc to parentarcs
             parentarcs[target] = arc;
             //And keep seeking until we find the last node to the target
@@ -72,7 +71,7 @@ void Dijkstra::RunForTarget(int seeked_source, int seeked_target, int source, in
                 if (DEBUG) OUTPUT << GRN << "[Target " << target << " found]\n" << STD;
                 resolvedTargets[targetId] = 1;
             } else
-                RunForTarget(seeked_source, seeked_target, target, seeked_target, totalDistance, targetId);
+                RunForTarget(seeked_target, target, seeked_target, totalDistance, targetId);
         }
     }
 }
@@ -89,7 +88,7 @@ void Dijkstra::RunUntilAllTargetsAreReached(int source, const vector<int> &targe
     //Running for each target
     for (int i = 0; i < targets.size(); i++) {
         resolvedTargets.push_back(0);
-        RunForTarget(source, targets[i], source, targets[i], 0, i);
+        RunForTarget(targets[i], source, targets[i], 0, i);
     }
     //Displaying the distances in DEBUG mode
     if (DEBUG) {

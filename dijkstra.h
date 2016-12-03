@@ -37,7 +37,7 @@ public:
   // the lifetime of this class.
   Dijkstra(const Graph* graph, const vector<double>* arc_lengths);
 
-    void RunForTarget(int, int, int, int, double, int);
+    void RunForTarget(int, int, int, double, int);
     double GetDistance(int, int) const;
     bool IsNodeReached(int);
 
