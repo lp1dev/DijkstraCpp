@@ -41,6 +41,8 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
         //Retrieving all arcs coming from the source
         vector<int> arcsComingFrom = graph->ArcsComingFrom(source);
         for (const int arc: arcsComingFrom) {
+            if (resolvedTargets[targetId])
+                return;
             target = graph->targets[arc];
             if (DEBUG){
                 OUTPUT << "passing by target " << target << std::endl;
