@@ -22,27 +22,27 @@ public:
 
     int NumNodes() const { return outgoing_arcs_.size(); }
 
-    int NumArcs() const { return tail_.size(); }
+    int NumArcs() const { return sources.size(); }
 
     // Gets the tail ("from") and head ("to") of an arc.
-    int Tail(int arc) const { return tail_[arc]; }
+    int Tail(int arc) const { return sources[arc]; }
 
-    int Head(int arc) const { return head_[arc]; }
+    int Head(int arc) const { return targets[arc]; }
 
     int GetArcId(int from, int to) const;
 
 
-    // Returns a list of all the arc indices whose Tail is "from".
-    const vector<int> &OutgoingArcs(int from) const {
+    // Returns a list of all the arc indices whose source is "from".
+    const vector<int> &ArcsComingFrom(int from) const {
         return outgoing_arcs_[from];
     }
 
-    // Returns a list of all the arc indices whose Head is "to".
-    const vector<int> &IncomingArcs(int to) const {
+    // Returns a list of all the arc indices whose target is "to".
+    const vector<int> &ArcsGoingTo(int to) const {
         return incoming_arcs_[to];
     }
-    vector<int> tail_;
-    vector<int> head_;
+    vector<int> sources;
+    vector<int> targets;
 private:
     vector<vector<int>> outgoing_arcs_;
     vector<vector<int>> incoming_arcs_;

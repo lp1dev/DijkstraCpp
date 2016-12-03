@@ -9,14 +9,14 @@ int Graph::AddArc(int from, int to) {
     const int arc_index = NumArcs();
     outgoing_arcs_[from].push_back(arc_index);
     incoming_arcs_[to].push_back(arc_index);
-    tail_.push_back(from);
-    head_.push_back(to);
+    sources.push_back(from);//sources = tail_
+    targets.push_back(to);//targets = head_
     return arc_index;
 }
 
 int Graph::GetArcId(int from, int to) const{
-    for (int i = 0; i < tail_.size(); i++) {
-        if (from == tail_[i] && to == head_[i])
+    for (int i = 0; i < sources.size(); i++) {
+        if (from == sources[i] && to == targets[i])
             return i;
     }
     return -1;
