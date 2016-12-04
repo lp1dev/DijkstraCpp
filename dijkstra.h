@@ -33,10 +33,10 @@ class Dijkstra {
 private:
     const Graph* graph;
     const vector<double>* arc_lengths;
-    vector<double> distancesFromSource;
-    vector<double> distancesFromTarget;
-    vector<int> parentarcs;
-    vector<int> reachedNodes;
+//    vector<double> distances;
+    vector<vector<double>> distancesContainer;
+    vector<vector<int>> parentarcs;
+    vector<vector<int>> reachedNodes;
     vector<int> foundTargets;
     int remainingTargets;
     priority_queue<DijkstraState> queue;
@@ -45,8 +45,7 @@ public:
   // the lifetime of this class.
   Dijkstra(const Graph* graph, const vector<double>* arc_lengths);
 
-    void RunForTargetFromSource(int, int, int, double);
-    void RunForSourceFromTarget(int, int, int, double);
+    void Run(int, int, int, double, int);
     bool IsNodeReached(int);
 
   const Graph& GetGraph() const;

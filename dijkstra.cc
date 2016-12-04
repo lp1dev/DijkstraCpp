@@ -1,14 +1,24 @@
-#define DEBUG 1
+#define DEBUG 0
 #define OUTPUT std::cout << "\t\t\t"
 #define GRN "\033[32;32m"
 #define STD "\033[0;0m"
+#define SOURCE 0
+#define TARGET 1
 
 #include "dijkstra.h"
 
 Dijkstra::Dijkstra(const Graph *graph, const vector<double> *arc_lengths) : graph(graph), arc_lengths(arc_lengths) {
+    distancesContainer.push_back(std::vector<double>());
+    distancesContainer.push_back(std::vector<double>());
+    reachedNodes.push_back(std::vector<int>());
+    reachedNodes.push_back(std::vector<int>());
+    parentarcs.push_back(std::vector<int>());
+    parentarcs.push_back(std::vector<int>());
     for (int i = 0; i <= graph->NumNodes(); i++) {
-        parentarcs.push_back(-1);
-        distancesFromSource.push_back(infinity);
+        parentarcs[SOURCE].push_back(-1);
+        parentarcs[TARGET].push_back(-1);
+        distancesContainer[SOURCE].push_back(infinity);
+        distancesContainer[TARGET].push_back(infinity);
     }
 }
 
@@ -16,107 +26,102 @@ const Graph &Dijkstra::GetGraph() const {
     return *graph;
 }
 
-bool Dijkstra::IsNodeReached(int node) {
-    for (int i = 0; i < reachedNodes.size(); i++) {
-        if (reachedNodes[i] == node)
-            return true;
-    }
-    return false;
-}
-
-void Dijkstra::RunForSourceFromTarget(int seeked_source, int source, int target, double totalDistance) {
-
-}
-
-void Dijkstra::RunForTargetFromSource(int seeked_target, int source, int target, double totalDistance) {
-    if (seeked_target == target)
+void Dijkstra::Run(int seeked_node, int source, int target, double totalDistance, int containerId) {
+    if (seeked_node == target)
         for (int found_target : foundTargets)
-            if (found_target == seeked_target && totalDistance > distancesFromSource[seeked_target]) {
+            if (found_target == seeked_node && totalDistance > distancesContainer[containerId][seeked_node]) {
                 return;
             }
     for (const int arc: graph->OutgoingArcs(source)) {
         int arc_target = graph->Head(arc);
-        if (DEBUG) OUTPUT << "Arc(" << source << ")->(" << arc_target << ")\n";
+//        if (distancesContainer[0][arc_target] != infinity && distancesContainer[1][arc_target] != infinity)
+
+            if (DEBUG) OUTPUT << "Arc(" << source << ")->(" << arc_target << ")\n";
         double arc_length = this->arc_lengths->at(arc);
 
         //If this path is longer or equal than the one we stored, we skip
-        if (arc_length + totalDistance >= distancesFromSource[arc_target])
+        if (arc_length + totalDistance >= distancesContainer[containerId][arc_target])
             continue;
         //If we did not reach the arc_target node already
-        if (distancesFromSource[arc_target] == infinity) {
-            reachedNodes.push_back(arc_target);
+        if (distancesContainer[containerId][arc_target] == infinity) {
+            reachedNodes[containerId].push_back(arc_target);
             if (DEBUG) {
                 OUTPUT << "discovered (" << source << ") -> (" << arc_target << ") = " << arc_length << std::endl;
             }
         }
-        distancesFromSource[arc_target] = arc_length + totalDistance;
-        if (DEBUG) OUTPUT << "assert distancesFromSource[" << arc_target << "] = " << distancesFromSource[arc_target] << std::endl;
+        distancesContainer[containerId][arc_target] = arc_length + totalDistance;
+        if (DEBUG) OUTPUT << "assert distancesContainer[containerId][" << arc_target << "] = " << distancesContainer[containerId][arc_target] << std::endl;
         //We add the arc to parentarcs
-        parentarcs[arc_target] = arc;
+        parentarcs[containerId][arc_target] = arc;
         //And keep seeking until we find the last node to the target
-        if (seeked_target == arc_target) {
-            if (DEBUG) std::cout << GRN << "[Found target " << seeked_target << "]\n" << STD;
-            foundTargets.push_back(seeked_target);
+        if (seeked_node == arc_target) {
+            if (DEBUG) std::cout << GRN << "[Found target " << seeked_node << "]\n" << STD;
+            foundTargets.push_back(seeked_node);
         }
-        RunForTargetFromSource(seeked_target, arc_target, seeked_target, totalDistance + arc_length);
+        Run(seeked_node, arc_target, seeked_node, totalDistance + arc_length, containerId);
     }
 }
 
 void Dijkstra::RunUntilAllTargetsAreReached(int source, const vector<int> &targets) {
     // Clean up the last Dijkstra run, sparsely.
-    for (const int node : reachedNodes) {
-        distancesFromSource[node] = infinity;
-        parentarcs[node] = -1;
+    for (const int node : reachedNodes[0]) {
+        distancesContainer[0][node] = infinity;
+        distancesContainer[1][node] = infinity;
+        parentarcs[SOURCE][node] = -1;
+        parentarcs[TARGET][node] = -1;
     }
-    reachedNodes.clear();
+    reachedNodes[0].clear();
+    reachedNodes[1].clear();
     foundTargets.clear();
 
     //Initialising the distance to the source to 0
-    distancesFromSource[source] = 0;
-    reachedNodes.push_back(source);
+    reachedNodes[0].push_back(source);
     vector<int> targetsToFind = targets.empty() ? graph->head_ : targets;
     remainingTargets = targetsToFind.size();
 
+    distancesContainer[0][source] = 0;
+
     //Running for each target
     for (int i = 0; i < targetsToFind.size(); i++) {
-        if (targetsToFind[i] == source)
-            distancesFromSource[source] = 0;
+        reachedNodes[1].push_back(targetsToFind[i]);
+        if (targetsToFind[i] == source) {
+            distancesContainer[0][source] = 0;
+            distancesContainer[1][targetsToFind[i]] = 0;
+        }
         else {
-            if (i % 2)
-                RunForTargetFromSource(targetsToFind[i], source, targetsToFind[i], 0);
-            else
-                RunForTargetFromSource(targetsToFind[i], source, targetsToFind[i], 0);
+            Run(targetsToFind[i], source, targetsToFind[i], 0, 0);
+            Run(source, targetsToFind[i], source, 0, 1);
         }
     }
-    //Displaying the distancesFromSource if in DEBUG
+    //Displaying the distances if in DEBUG
     if (DEBUG) {
         OUTPUT << "Distances : \n\t";
-        for (int i = 0; i < distancesFromSource.size(); i++) std::cout << "[" << distancesFromSource[i] << "]";
+        for (int i = 0; i < distancesContainer[0].size(); i++) std::cout << "[" << distancesContainer[0][i] << "]";
         OUTPUT << std::endl;
     }
     if (DEBUG) {
         OUTPUT << "Reached nodes : \n\t";
-        for (int i = 0; i < reachedNodes.size(); i++) std::cout << "[" << reachedNodes[i] << "]";
+        for (int i = 0; i < reachedNodes[0].size(); i++) std::cout << "[" << reachedNodes[0][i] << "]";
         OUTPUT << std::endl;
     }
 }
 
 const vector<int> &Dijkstra::ReachedNodes() const {
-    return reachedNodes;
+    return reachedNodes[0];
 }
 
 const vector<double> &Dijkstra::Distances() const {
-    return distancesFromSource;
+    return distancesContainer[0];
 }
 
 const vector<int> &Dijkstra::ParentArcs() const {
-    return parentarcs;
+    return parentarcs[SOURCE];
 }
 
 vector<int> Dijkstra::ArcPathFromSourceTo(int node) const {
     vector<int> arcs;
     for (;;) {
-        const int a = parentarcs[node];
+        const int a = parentarcs[SOURCE][node];
         if (a < 0) break;
         arcs.push_back(a);
         node = graph->Tail(a);
