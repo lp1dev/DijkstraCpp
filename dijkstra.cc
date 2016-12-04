@@ -42,6 +42,18 @@ void Dijkstra::Run(int seeked_node, int source, int target, double totalDistance
         //If this path is longer or equal than the one we stored, we skip
         if (arc_length + totalDistance >= distancesContainer[containerId][arc_target])
             continue;
+
+        //If the arc_target node is known by another container we have the distance
+        if (distancesContainer[SOURCE][arc_target] != infinity &&
+                distancesContainer[TARGET][arc_target] != infinity)
+        {
+            double distancesFromTwoSides = totalDistance + distancesContainer[TARGET][arc_target];
+            if (distancesFromTwoSides < distancesContainer[SOURCE][seeked_node]) {
+                distancesContainer[SOURCE][seeked_node] = totalDistance + distancesContainer[TARGET][arc_target];
+                foundTargets.push_back(seeked_node);
+            }
+        }
+
         //If we did not reach the arc_target node already
         if (distancesContainer[containerId][arc_target] == infinity) {
             reachedNodes[containerId].push_back(arc_target);
