@@ -113,4 +113,13 @@ const vector<int> &Dijkstra::ParentArcs() const {
 }
 
 vector<int> Dijkstra::ArcPathFromSourceTo(int node) const {
+    vector<int> arcs;
+    for (;;) {
+        const int a = parentarcs[node];
+        if (a < 0) break;
+        arcs.push_back(a);
+        node = graph->Tail(a);
+    }
+    std::reverse(arcs.begin(), arcs.end());
+    return arcs;
 }
