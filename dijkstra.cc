@@ -37,7 +37,7 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
         return;
     for (const int arc: graph->OutgoingArcs(source)) {
         int arc_target = graph->Head(arc);
-        OUTPUT << "Arc(" << source << ")->(" << arc_target <<")\n";
+        OUTPUT << "Arc(" << source << ")->(" << arc_target << ")\n";
         if (arc_target == source) {
             OUTPUT << "Arc is source, stopping" << std::endl;
 //            lowest_distance = 0;
@@ -52,20 +52,22 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
             closest_target = arc_target;
         }
 
-        //If this path is shorter
-        if (arc_length + totalDistance < distances[arc_target]) {
-            //If we did not reach the arc_target node already
-            if (distances[arc_target] == infinity) {
-                reachedNodes.push_back(arc_target);
-                if (DEBUG) { OUTPUT << "discovered (" << source << ") -> (" << arc_target << ") = " << arc_length << std::endl; }
+        //If this path is longer or equal than the one we stored, we skip
+        if (arc_length + totalDistance >= distances[arc_target])
+            continue;
+        //If we did not reach the arc_target node already
+        if (distances[arc_target] == infinity) {
+            reachedNodes.push_back(arc_target);
+            if (DEBUG) {
+                OUTPUT << "discovered (" << source << ") -> (" << arc_target << ") = " << arc_length << std::endl;
             }
-            distances[arc_target] = arc_length + totalDistance;
-            if (DEBUG) OUTPUT << "assert distances[" << arc_target << "] = " << distances[arc_target] << std::endl;
-            //We add the arc to parentarcs
-            parentarcs[arc_target] = arc;
-            //And keep seeking until we find the last node to the target
-            RunForTarget(seeked_target, closest_target, seeked_target, totalDistance + lowest_distance);
         }
+        distances[arc_target] = arc_length + totalDistance;
+        if (DEBUG) OUTPUT << "assert distances[" << arc_target << "] = " << distances[arc_target] << std::endl;
+        //We add the arc to parentarcs
+        parentarcs[arc_target] = arc;
+        //And keep seeking until we find the last node to the target
+        RunForTarget(seeked_target, arc_target, seeked_target, totalDistance + arc_length);
     }
     if (closest_target == seeked_target) {
         OUTPUT << GRN << "[Target " << seeked_target << " found]\n" << STD;
