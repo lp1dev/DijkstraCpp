@@ -43,7 +43,6 @@ public:
   Dijkstra(const Graph* graph, const vector<double>* arc_lengths);
 
     void RunForTarget(int, int, int, double);
-    double GetDistance(int, int) const;
     bool IsNodeReached(int);
 
   const Graph& GetGraph() const;

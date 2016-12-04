@@ -16,11 +16,6 @@ const Graph &Dijkstra::GetGraph() const {
     return *graph;
 }
 
-double Dijkstra::GetDistance(int source, int target) const {
-    int id = graph->GetArcId(source, target);
-    return arc_lengths->at(id);
-}
-
 bool Dijkstra::IsNodeReached(int node) {
     for (int i = 0; i < reachedNodes.size(); i++) {
         if (reachedNodes[i] == node)
@@ -37,15 +32,22 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
     }
     int closest_target = target;
     double lowest_distance = infinity;
-    OUTPUT << "Found " << graph->ArcsComingFrom(source).size() << " arcs coming from " << source << std::endl;
-    for (const int arc: graph->ArcsComingFrom(source)) {
-        int arc_target = graph->targets[arc];
+    OUTPUT << "Found " << graph->OutgoingArcs(source).size() << " arcs going out of " << source << std::endl;
+    if (totalDistance > distances[source])
+        return;
+    for (const int arc: graph->OutgoingArcs(source)) {
+        int arc_target = graph->Head(arc);
         OUTPUT << "Arc(" << source << ")->(" << arc_target <<")\n";
-
+        if (arc_target == source) {
+            OUTPUT << "Arc is source, stopping" << std::endl;
+//            lowest_distance = 0;
+//            closest_target = arc_target;
+            continue;
+        }
         double arc_length = this->arc_lengths->at(arc);
         //We add the target to reachedNodes if it hasn't been reached already
         if (arc_length < lowest_distance) {
-            OUTPUT << "New closest arc target is " << arc << "->" << arc_target << "=" << arc_length << std::endl;
+            OUTPUT << "New closest arc target is " << source << "->" << arc_target << "=" << arc_length << std::endl;
             lowest_distance = arc_length;
             closest_target = arc_target;
         }
@@ -62,21 +64,19 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
             //We add the arc to parentarcs
             parentarcs[arc_target] = arc;
             //And keep seeking until we find the last node to the target
-
+            RunForTarget(seeked_target, closest_target, seeked_target, totalDistance + lowest_distance);
         }
     }
     if (closest_target == seeked_target) {
         OUTPUT << GRN << "[Target " << seeked_target << " found]\n" << STD;
     }
-    else
-        RunForTarget(seeked_target, closest_target, seeked_target, totalDistance + lowest_distance);
 }
 
 void Dijkstra::RunUntilAllTargetsAreReached(int source, const vector<int> &targets) {
     //Initialising the distance to the source to 0
     distances[source] = 0;
     reachedNodes.push_back(source);
-    vector<int> targetsToFind = targets.empty() ? graph->targets : targets;
+    vector<int> targetsToFind = targets.empty() ? graph->head_ : targets;
     //Running for each target
     for (int i = 0; i < targetsToFind.size(); i++) {
         if (targetsToFind[i] == source)
