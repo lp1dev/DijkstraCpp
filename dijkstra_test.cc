@@ -314,7 +314,7 @@ int main() {
   ACMRandom random(0);
   Graph grid_graph;
   vector<double> grid_arc_lengths;
-  const int kSize = 1000;
+  const int kSize = 10;
   for (int i = 0; i < kSize; ++i) {
     for (int j = 1; j < kSize; ++j) {
       vector<pair<int, int> > arcs;
@@ -340,13 +340,12 @@ int main() {
     dijkstra.RunUntilAllTargetsAreReached(0, targets);
     clock_t c1 = clock();
     CHECK_NEAR(dijkstra.Distances()[kSize * kSize - 1], 461.115791151, 1e-6);
-    exit(0);
 
     cout << "Test #" << num_tests++ << " PASSED! Performance: "
          << double(c1 - c0)/ CLOCKS_PER_SEC << " seconds for the big Dijkstra." << endl;
 
     c0 = clock();
-    const int kNumDijkstras = 1000;
+    const int kNumDijkstras = kSize;
     double total_dist = 0.0;
     for (int k = 0; k < kNumDijkstras; ++k) {
       const int src_x = random.Next() % kSize;
