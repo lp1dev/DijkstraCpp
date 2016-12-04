@@ -329,7 +329,6 @@ int main() {
     }
   }
   cerr << "Done! Running the 'big' performance test" << endl;
-
   // Run 100 Dijkstra that should be "relatively short" because the
   // src/targets are closeby. Verify correctness for some.
   {
@@ -341,6 +340,8 @@ int main() {
     dijkstra.RunUntilAllTargetsAreReached(0, targets);
     clock_t c1 = clock();
     CHECK_NEAR(dijkstra.Distances()[kSize * kSize - 1], 461.115791151, 1e-6);
+    exit(0);
+
     cout << "Test #" << num_tests++ << " PASSED! Performance: "
          << double(c1 - c0)/ CLOCKS_PER_SEC << " seconds for the big Dijkstra." << endl;
 

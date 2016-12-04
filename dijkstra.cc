@@ -1,4 +1,4 @@
-#define DEBUG 1
+#define DEBUG 0
 #define OUTPUT std::cout << "\t\t\t"
 #define GRN "\033[32;32m"
 #define STD "\033[0;0m"
@@ -25,27 +25,21 @@ bool Dijkstra::IsNodeReached(int node) {
 }
 
 void Dijkstra::RunForTarget(int seeked_target, int source, int target, double totalDistance) {
+    if (seeked_target == target)
+        for (int found_target : foundTargets)
+            if (found_target == seeked_target && totalDistance > distances[seeked_target]) {
+                return;
+            }
+    //
     if (DEBUG) {
         std::cout << "\n\tFrom: (" << source << ") to (" << target << ") totalDistance : " << totalDistance
                   << std::endl;
         OUTPUT << "(seeked_target : " << seeked_target << ")\n\n";
     }
-    int closest_target = target;
-    double lowest_distance = infinity;
-    if (totalDistance > distances[source])
-        return;
     for (const int arc: graph->OutgoingArcs(source)) {
         int arc_target = graph->Head(arc);
         if (DEBUG) OUTPUT << "Arc(" << source << ")->(" << arc_target << ")\n";
         double arc_length = this->arc_lengths->at(arc);
-        //We add the target to reachedNodes if it hasn't been reached already
-        if (arc_length < lowest_distance) {
-            if (DEBUG)
-                OUTPUT << "New closest arc target is " << source << "->" << arc_target << "=" << arc_length
-                       << std::endl;
-            lowest_distance = arc_length;
-            closest_target = arc_target;
-        }
 
         //If this path is longer or equal than the one we stored, we skip
         if (arc_length + totalDistance >= distances[arc_target])
@@ -62,6 +56,10 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
         //We add the arc to parentarcs
         parentarcs[arc_target] = arc;
         //And keep seeking until we find the last node to the target
+        if (seeked_target == arc_target) {
+            if (DEBUG) std::cout << GRN << "[Found target " << seeked_target << "]\n" << STD;
+            foundTargets.push_back(seeked_target);
+        }
         RunForTarget(seeked_target, arc_target, seeked_target, totalDistance + arc_length);
     }
 }
@@ -73,6 +71,7 @@ void Dijkstra::RunUntilAllTargetsAreReached(int source, const vector<int> &targe
         parentarcs[node] = -1;
     }
     reachedNodes.clear();
+    foundTargets.clear();
 
     //Initialising the distance to the source to 0
     distances[source] = 0;

@@ -36,6 +36,7 @@ private:
     vector<double> distances;
     vector<int> parentarcs;
     vector<int> reachedNodes;
+    vector<int> foundTargets;
     int remainingTargets;
     priority_queue<DijkstraState> queue;
 public:
