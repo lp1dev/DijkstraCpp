@@ -38,12 +38,6 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
     for (const int arc: graph->OutgoingArcs(source)) {
         int arc_target = graph->Head(arc);
         OUTPUT << "Arc(" << source << ")->(" << arc_target << ")\n";
-        if (arc_target == source) {
-            OUTPUT << "Arc is source, stopping" << std::endl;
-//            lowest_distance = 0;
-//            closest_target = arc_target;
-            continue;
-        }
         double arc_length = this->arc_lengths->at(arc);
         //We add the target to reachedNodes if it hasn't been reached already
         if (arc_length < lowest_distance) {
