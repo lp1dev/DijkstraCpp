@@ -36,6 +36,7 @@ private:
     vector<double> distances;
     vector<int> parentarcs;
     vector<int> reachedNodes;
+    int remainingTargets;
     priority_queue<DijkstraState> queue;
 public:
   // The given graph and arc lengths won't be copied, and must remain live for

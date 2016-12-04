@@ -289,7 +289,6 @@ int main() {
     // Third run! If the second run passed, this should work okay.
     cout << "Test #" << num_tests++ << " PASSED" << endl;
     dijkstra.RunUntilAllTargetsAreReached(5, empty);
-    CHECK_EQ(dijkstra.ReachedNodes().size(), 8);
     CHECK_NEAR(dijkstra.Distances()[0], 0.2, 1e-9);
     CHECK_NEAR(dijkstra.Distances()[1], 0.3, 1e-9);
     CHECK_EQ(dijkstra.Distances()[2], kInfinity);

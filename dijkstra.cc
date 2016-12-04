@@ -63,22 +63,31 @@ void Dijkstra::RunForTarget(int seeked_target, int source, int target, double to
         //And keep seeking until we find the last node to the target
         RunForTarget(seeked_target, arc_target, seeked_target, totalDistance + arc_length);
     }
-    if (closest_target == seeked_target) {
-        OUTPUT << GRN << "[Target " << seeked_target << " found]\n" << STD;
-    }
 }
 
 void Dijkstra::RunUntilAllTargetsAreReached(int source, const vector<int> &targets) {
+    // Clean up the last Dijkstra run, sparsely.
+    for (const int node : reachedNodes) {
+        distances[node] = infinity;
+        parentarcs[node] = -1;
+    }
+    reachedNodes.clear();
+
     //Initialising the distance to the source to 0
     distances[source] = 0;
     reachedNodes.push_back(source);
     vector<int> targetsToFind = targets.empty() ? graph->head_ : targets;
+    remainingTargets = targetsToFind.size();
+
     //Running for each target
-    for (int i = 0; i < targetsToFind.size(); i++) {
+    int i = 0;
+    while (i < targetsToFind.size()) {
         if (targetsToFind[i] == source)
             distances[source] = 0;
-        else
+        else {
             RunForTarget(targetsToFind[i], source, targetsToFind[i], 0);
+        }
+        i++;
     }
     //Displaying the distances if in DEBUG
     if (DEBUG) {
