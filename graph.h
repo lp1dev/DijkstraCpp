@@ -41,8 +41,8 @@ public:
     const vector<int> &ArcsGoingTo(int to) const {
         return incoming_arcs_[to];
     }
-    vector<int> sources;
     vector<int> targets;
+    vector<int> sources;
 private:
     vector<vector<int>> outgoing_arcs_;
     vector<vector<int>> incoming_arcs_;

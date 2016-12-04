@@ -35,7 +35,6 @@ private:
     const vector<double>* arc_lengths;
     vector<double> distances;
     vector<int> parentarcs;
-    vector<int> resolvedTargets;
     vector<int> reachedNodes;
     priority_queue<DijkstraState> queue;
 public:
@@ -43,7 +42,7 @@ public:
   // the lifetime of this class.
   Dijkstra(const Graph* graph, const vector<double>* arc_lengths);
 
-    void RunForTarget(int, int, int, double, int);
+    void RunForTarget(int, int, int, double);
     double GetDistance(int, int) const;
     bool IsNodeReached(int);
 
