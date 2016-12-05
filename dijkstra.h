@@ -33,12 +33,10 @@ class Dijkstra {
 private:
     const Graph* graph;
     const vector<double>* arc_lengths;
-//    vector<double> distances;
     vector<vector<double>> distancesContainer;
     vector<vector<int>> parentarcs;
     vector<vector<int>> reachedNodes;
     vector<int> foundTargets;
-    int remainingTargets;
     priority_queue<DijkstraState> queue;
 public:
   // The given graph and arc lengths won't be copied, and must remain live for

@@ -14,6 +14,15 @@ int Graph::AddArc(int from, int to) {
   return arc_index;
 }
 
+bool Graph::IsNode(std::pair<double, double> arc, int index, int size){
+  if (index == 0)
+    return true;
+  if (outgoing_arcs_[arc.first].size() >= 1  &&
+          incoming_arcs_[arc.second].size() >= 1)
+    return true;
+  return false;
+}
+
 void Graph::AddNode(int node) {
   if (NumNodes() <= node) {
     outgoing_arcs_.resize(node + 1);

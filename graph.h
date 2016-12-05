@@ -29,6 +29,8 @@ public:
 
     int Head(int arc) const { return head_[arc]; }
 
+    bool IsNode(std::pair<double, double> arc, int index, int size);
+
     // Returns a list of all the arc indices whose Tail is "from".
     const vector<int> &OutgoingArcs(int from) const {
         return outgoing_arcs_[from];

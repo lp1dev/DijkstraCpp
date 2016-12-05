@@ -34,22 +34,18 @@ void Dijkstra::Run(int seeked_node, int source, int target, double totalDistance
             }
     for (const int arc: graph->OutgoingArcs(source)) {
         int arc_target = graph->Head(arc);
-//        if (distancesContainer[0][arc_target] != infinity && distancesContainer[1][arc_target] != infinity)
-
-            if (DEBUG) OUTPUT << "Arc(" << source << ")->(" << arc_target << ")\n";
         double arc_length = this->arc_lengths->at(arc);
 
         //If this path is longer or equal than the one we stored, we skip
         if (arc_length + totalDistance >= distancesContainer[containerId][arc_target])
             continue;
 
-        //If the arc_target node is known by another container we have the distance
-        if (distancesContainer[SOURCE][arc_target] != infinity &&
-                distancesContainer[TARGET][arc_target] != infinity)
-        {
-            double distancesFromTwoSides = totalDistance + distancesContainer[TARGET][arc_target];
-            if (distancesFromTwoSides < distancesContainer[SOURCE][seeked_node]) {
-                distancesContainer[SOURCE][seeked_node] = totalDistance + distancesContainer[TARGET][arc_target];
+        //If the arc_target node is known by another container then have the distance to the seeked_node
+        if (distancesContainer[containerId][arc_target] != infinity &&
+            distancesContainer[!containerId][arc_target] != infinity) {
+            double distancesFromTwoSides = totalDistance + distancesContainer[!containerId][arc_target];
+            if (distancesFromTwoSides < distancesContainer[containerId][seeked_node]) {
+                distancesContainer[containerId][seeked_node] = distancesFromTwoSides;
                 foundTargets.push_back(seeked_node);
             }
         }
@@ -57,17 +53,12 @@ void Dijkstra::Run(int seeked_node, int source, int target, double totalDistance
         //If we did not reach the arc_target node already
         if (distancesContainer[containerId][arc_target] == infinity) {
             reachedNodes[containerId].push_back(arc_target);
-            if (DEBUG) {
-                OUTPUT << "discovered (" << source << ") -> (" << arc_target << ") = " << arc_length << std::endl;
-            }
         }
         distancesContainer[containerId][arc_target] = arc_length + totalDistance;
-        if (DEBUG) OUTPUT << "assert distancesContainer[containerId][" << arc_target << "] = " << distancesContainer[containerId][arc_target] << std::endl;
         //We add the arc to parentarcs
         parentarcs[containerId][arc_target] = arc;
         //And keep seeking until we find the last node to the target
         if (seeked_node == arc_target) {
-            if (DEBUG) std::cout << GRN << "[Found target " << seeked_node << "]\n" << STD;
             foundTargets.push_back(seeked_node);
         }
         Run(seeked_node, arc_target, seeked_node, totalDistance + arc_length, containerId);
@@ -86,11 +77,9 @@ void Dijkstra::RunUntilAllTargetsAreReached(int source, const vector<int> &targe
     reachedNodes[1].clear();
     foundTargets.clear();
 
-    //Initialising the distance to the source to 0
+    //Initialising the distances and the targets
     reachedNodes[0].push_back(source);
     vector<int> targetsToFind = targets.empty() ? graph->head_ : targets;
-    remainingTargets = targetsToFind.size();
-
     distancesContainer[0][source] = 0;
 
     //Running for each target
@@ -99,13 +88,12 @@ void Dijkstra::RunUntilAllTargetsAreReached(int source, const vector<int> &targe
         if (targetsToFind[i] == source) {
             distancesContainer[0][source] = 0;
             distancesContainer[1][targetsToFind[i]] = 0;
-        }
-        else {
+        } else {
             Run(targetsToFind[i], source, targetsToFind[i], 0, 0);
             Run(source, targetsToFind[i], source, 0, 1);
         }
     }
-    //Displaying the distances if in DEBUG
+    //Displaying the computed distances if in DEBUG
     if (DEBUG) {
         OUTPUT << "Distances : \n\t";
         for (int i = 0; i < distancesContainer[0].size(); i++) std::cout << "[" << distancesContainer[0][i] << "]";

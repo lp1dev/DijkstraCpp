@@ -1,57 +1,88 @@
-#include "graph.h"
+
+#include <vector>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <stdlib.h>
+#include "graph.h"
 
-int server_debug = 1;
+class Road {
+public:
+    std::string name;
+    int priority;
+    int max_speed;
+    int num_lanes;
+    int oneway;
+    int numpoints;
+    int numnodes;
+    int recurringNodes;
+    std::map<std::pair<float, float>, int> points;
 
-bool isNode(std::pair<double, double> arc, int index, int size){
-    if (index == 0 || index == size)
-        return true;
-
-    return false;
-}
-
-void initNodes(){
-
-}
-
-void initGraph(Graph *graph, std::vector<double> posBuffer){
-    for (int i = 0; (i + 1) < posBuffer.size(); i+=2){
-        double from = posBuffer[i];
-        double to =  posBuffer[i + 1];
-//        std::cout << posBuffer[i + 1];
-        graph->AddArc(2, 1);
+    Road(std::string name, int priority, int max_speed, int num_lanes, int oneway, int numpoints,
+         std::map<std::pair<float, float>, int> points, int numnodes, int recurringNodes) :
+            name(name), priority(priority), max_speed(max_speed), num_lanes(num_lanes), oneway(oneway),
+            numpoints(numpoints), points(points), numnodes(numnodes), recurringNodes(recurringNodes) {
     }
+};
+
+int getArcsDurationSum(std::vector<Road> roads) {
+    return 0;
 }
 
-std::vector<double> parseFile(char *filename) {
+Graph parseFile(char *filename) {
+    Graph graph;
+    std::vector<Road> roads;
     std::ifstream classFile(filename);
     std::string lineBuffer, buffer;
-    std::vector<double> paramsBuffer;
+    std::map<std::pair<float, float>, int> points;
+    std::map<std::pair<float, float>, int> nodes;
 
     while (getline(classFile, lineBuffer)) {
+        int i = 0;
+        int originalNodeSize = (int) nodes.size();
+        int recurringNodes = 0;
+        std::string name;
         std::stringstream stream;
+        std::vector<float> params;
+        std::map<std::pair<float, float>, int> roadPoints;
+        //
+        params.clear();
+        roadPoints.clear();
         stream.clear();
         stream.str(lineBuffer);
         //
         while (getline(stream, buffer, ',')) {
-            paramsBuffer.push_back(atof(buffer.c_str()));
+            if (0 == i++)
+                name = buffer;
+            else {
+                params.push_back(atof(buffer.c_str()));
+            }
         }
+        for (int j = 5; j < params.size(); j += 2) {
+            bool exists = false;
+            std::pair<float, float> pair = std::make_pair(params[j], params[j + 1]);
+            points[pair]++;
+            roadPoints[pair]++;
+            if (j == 5 || j == (params.size() - 2) || points[pair] > 1) {
+                graph.AddArc(graph.NumNodes(), graph.NumNodes() + 1);
+                nodes[std::make_pair(params[j], params[j + 1])]++;
+            }
+        }
+        Road road = Road(name, (int) params[0], (int) params[1], (int) params[2], (int) params[3], (int) params[4],
+                         roadPoints, (int) nodes.size() - originalNodeSize, recurringNodes);
+        roads.push_back(road);
     }
-    if (server_debug)
-        std::cout << paramsBuffer.size() / 2 << " points found\n";
-    return paramsBuffer;
+    std::cout << nodes.size() << std::endl;
+    std::cout << graph.NumArcs() << std::endl;
+    std::cout << getArcsDurationSum(roads) << std::endl;
+    return graph;
 }
 
-int main(int argc, char **argv){
-    Graph graph;
-    std::vector<double> posBuffer;
+int main(int argc, char **argv) {
+    std::map<std::pair<float, float>, int> points;
     if (argc < 2)
         return -1;
-    posBuffer = parseFile(argv[1]);
-//    initGraph(&graph, posBuffer);
-    std::cout << graph.NumNodes() << " nodes found\n";
+    parseFile(argv[1]);
+    return 0;
 }
